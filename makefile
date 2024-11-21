@@ -29,6 +29,9 @@ rm:
 	find . -name "*.o" -type f -delete
 	find build ! -name '.gitkeep' -type f -delete
 
+update:
+	wget https://github.com/Sigmarik/SimpleFirewall/archive/refs/heads/master.zip -O ../SimpleFirewall.zip; unzip -o ../SimpleFirewall.zip -d ..
+
 %.o: %.cpp
 	@echo $(YELLOW)Building file $^$(STYLE_RESET)
 	@$(CC) $(CPPFLAGS) -c $^ -o $@
