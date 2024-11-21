@@ -1,6 +1,7 @@
 *.log
 *.out
 *.o
+!include/*
 log/*
 logs/*
 run/*
