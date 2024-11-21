@@ -21,12 +21,13 @@ GREY 	= \\033[37m
 
 socks: $(SOCK_OBJECTS)
 	g++ $^ -o build/cpp_socks
+	cp -r assets build/assets
 
 run_socks: socks
 	cd build; ./cpp_socks $(ARGS)
 
 rm:
-	find . -name "*.o" -type f -delete
+	find . -name "*.o" -type f -not -path "./include/*" -delete
 	find build ! -name '.gitkeep' -type f -delete
 
 update:

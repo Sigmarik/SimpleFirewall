@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <iostream>
+
 #include "ruleset.h"
 
 #define BUF_SIZE 100000
@@ -24,41 +26,14 @@ int make_socket(int interface) {
     return sock;
 }
 
-struct __attribute__((packed)) Package {
-    struct ether_header channel;
-    struct iphdr ip;
-    unsigned char content[BUF_SIZE];
-};
-
-void print_ip(uint32_t ip) {
-    uint32_t hs_ip = ntohs(ip);
-    uint32_t mask = (1 << 8) - 1;
-    printf("%u.%u.%u.%u", (hs_ip >> 24) & mask, (hs_ip >> 16) & mask,
-           (hs_ip >> 8) & mask, hs_ip & mask);
-}
-
-void reroute(int sock_in, int sock_out) {
-    struct Package package;
+void reroute(int sock_in, int sock_out, const Ruleset& ruleset) {
+    static char package[BUF_SIZE];
 
     while (1) {
         size_t length = read(sock_in, &package, sizeof(package));
 
-        printf("Package type: %04x\n", ntohs(package.channel.ether_type));
-
-        if (ntohs(package.channel.ether_type) == IP_TYPE) {
-            unsigned ttl = package.ip.ttl;
-
-            printf("Package TTL: %u\n", ttl);
-            printf("Package source: ");
-            print_ip(package.ip.saddr);
-            printf("\nPackage destination: ");
-            print_ip(package.ip.daddr);
-            printf("\n");
-
-            if (ttl >= 100) {
-                printf("Blocked\n");
-                continue;
-            }
+        if (!ruleset.allows(package)) {
+            continue;
         }
 
         write(sock_out, &package, length);
@@ -66,16 +41,30 @@ void reroute(int sock_in, int sock_out) {
 }
 
 int main(int argc, char** argv) {
+    if (argc < 2) {
+        std::cerr << "Ruleset not specified. Usage:\n"
+                  << argv[0]
+                  << " [path to the ruleset] [first port] [second port]"
+                  << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    const char* ruleset_path = argv[1];
+
+    Ruleset ruleset = Ruleset::import(ruleset_path);
+
     int iface_nat = 8;
     int iface_pc = 9;
 
-    if (argc == 3) {
-        iface_nat = atoi(argv[1]);
-        iface_pc = atoi(argv[2]);
+    if (argc == 4) {
+        iface_nat = atoi(argv[2]);
+        iface_pc = atoi(argv[3]);
     }
 
     int sock_nat = make_socket(iface_nat);
     int sock_pc = make_socket(iface_pc);
+
+    std::cout << "The firewall is now active." << std::endl;
 
     pid_t route = fork();
 
@@ -85,10 +74,10 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         } break;
         case 0: {
-            reroute(sock_nat, sock_pc);
+            reroute(sock_nat, sock_pc, ruleset);
         } break;
         default: {
-            reroute(sock_pc, sock_nat);
+            reroute(sock_pc, sock_nat, ruleset);
         } break;
     }
 

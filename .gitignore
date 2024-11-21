@@ -5,6 +5,7 @@
 log/*
 logs/*
 run/*
+build
 .vscode/*
 dev_docs/*
 doxygen
