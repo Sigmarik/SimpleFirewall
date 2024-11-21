@@ -1,0 +1,11 @@
+*.log
+*.out
+*.o
+log/*
+logs/*
+run/*
+.vscode/*
+dev_docs/*
+doxygen
+dev_log.md
+roadmap.md
