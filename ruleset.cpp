@@ -66,7 +66,7 @@ Rule::Rule(const tinyxml2::XMLElement& element) {
     dst_ip_ = get_ip(element, "dst_ip");
 
     src_port_ = get_port(element, "src_port");
-    dst_port_ = get_port(element, "src_port");
+    dst_port_ = get_port(element, "dst_port");
 
     protocol_ = get_protocol(element, "protocol");
 }
@@ -100,7 +100,7 @@ Rule::Action Rule::operator()(const void* package) const {
     }
 
     if (ip->protocol == ICMP_PROTO) {
-        if (src_port_ || dst_port_) {
+        if (src_port_ || dst_port_ || protocol_) {
             return Action::DONT_KNOW;
         }
     } else if (ip->protocol == TCP_PROTO) {
