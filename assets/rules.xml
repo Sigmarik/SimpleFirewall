@@ -1,3 +1,5 @@
 <rules>
-    <block ip="8.8.8.8"/>
+    <allow dst_port="8080" protocol="TCP"/>
+    <block src_ip="8.8.8.8"/>
+    <allow/>
 </rules>

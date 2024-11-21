@@ -6,7 +6,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "ruleset.h"
+
 #define BUF_SIZE 100000
+#define IP_TYPE 0x0800
 
 int make_socket(int interface) {
     int sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
@@ -20,8 +23,6 @@ int make_socket(int interface) {
 
     return sock;
 }
-
-#define IP_TYPE 0x0800
 
 struct __attribute__((packed)) Package {
     struct ether_header channel;
