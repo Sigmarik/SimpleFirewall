@@ -20,6 +20,11 @@ def filter(packet):
         print(f"Authority Count: {dns_nscount}")
         print(f"Additional Count: {dns_arcount}")
 
+        if dns_layer.qr == 0:
+            for question in dns_layer.qd:
+                domain_name = question.qname.decode('utf-8')
+                print(f"Domain Name: {domain_name}")
+
     packet.accept()
 
 nfqueue = NetfilterQueue()
