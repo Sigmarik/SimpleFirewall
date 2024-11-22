@@ -79,7 +79,7 @@ class Rule:
                 return None
             domain_name = answer.rrname.decode('utf-8')
             print(f"Name: {domain_name}")
-            if "name" in self.params and self.params["name"] != domain_name:
+            if "name" in self.params and self.params["name"] + "." != domain_name:
                 return None
         return self.action
 
@@ -91,7 +91,7 @@ class Rule:
         for question in dns_layer.qd:
             domain_name = question.qname.decode('utf-8')
             print(f"Name: {domain_name}")
-            if "name" in self.params and self.params["name"] != domain_name:
+            if "name" in self.params and self.params["name"] + "." != domain_name:
                 return None
             if "type" in self.params:
                 type_name = self.params["type"]
