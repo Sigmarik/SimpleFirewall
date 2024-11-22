@@ -56,3 +56,4 @@ install_everything:
 	apk add libnetfilter_queue-dev
 	python3 -m ensurepip
 	python3 -m pip install NetfilterQueue
+	python3 -m pip install scapy
