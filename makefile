@@ -29,6 +29,9 @@ run_socks: socks
 nfqueue:
 	python3 firewall.py $(ARGS)
 
+setup_tables:
+	iptables -t mangle -A FORWARD -j NFQUEUE --queue-num 5
+
 rm:
 	find . -name "*.o" -type f -not -path "./include/*" -delete
 	find build ! -name '.gitkeep' -type f -delete
@@ -39,3 +42,10 @@ update:
 %.o: %.cpp
 	@echo $(YELLOW)Building file $^$(STYLE_RESET)
 	@$(CC) $(CPPFLAGS) -c $^ -o $@
+
+install_everything:
+	apk add python3-dev
+	apk add linux-headers
+	apk add libnetfilter_queue-dev
+	python3 -m ensurepip
+	python3 -m pip install NetfilterQueue

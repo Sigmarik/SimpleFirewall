@@ -1,4 +1,3 @@
-import xml.etree.ElementTree as ET
 from netfilterqueue import NetfilterQueue
 
 def print_and_accept(pkt):
@@ -6,7 +5,7 @@ def print_and_accept(pkt):
     pkt.accept()
 
 nfqueue = NetfilterQueue()
-nfqueue.bind(1, print_and_accept)
+nfqueue.bind(5, print_and_accept)
 try:
     nfqueue.run()
 except KeyboardInterrupt:
