@@ -9,14 +9,12 @@ def filter(packet):
         dns_layer = scapy_packet.getlayer(DNS)
 
         dns_id = dns_layer.id
-        dns_flags = dns_layer.flags
         dns_qdcount = dns_layer.qdcount
         dns_ancount = dns_layer.ancount
         dns_nscount = dns_layer.nscount
         dns_arcount = dns_layer.arcount
 
         print(f"DNS ID: {dns_id}")
-        print(f"Flags: {dns_flags}")
         print(f"Questions Count: {dns_qdcount}")
         print(f"Answer Count: {dns_ancount}")
         print(f"Authority Count: {dns_nscount}")
