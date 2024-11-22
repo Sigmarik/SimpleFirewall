@@ -30,8 +30,12 @@ nfqueue:
 	python3 firewall.py $(ARGS)
 
 setup_tables:
+	iptables -t nat -F
+	iptables -t mangle -F
+	iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 	iptables -t mangle -A FORWARD -j NFQUEUE --queue-num 5
-	iptables -L -v -n
+	iptables -t nat -L -v -n
+	iptables -t mangle -L -v -n
 
 rm:
 	find . -name "*.o" -type f -not -path "./include/*" -delete
