@@ -26,6 +26,9 @@ socks: $(SOCK_OBJECTS)
 run_socks: socks
 	cd build; ./cpp_socks $(ARGS)
 
+nfqueue:
+	python3 firewall.py $(ARGS)
+
 rm:
 	find . -name "*.o" -type f -not -path "./include/*" -delete
 	find build ! -name '.gitkeep' -type f -delete
