@@ -159,7 +159,7 @@ def filter(packet):
         else:
             print("Accepted!")
             packet.accept()
-    elif:
+    else:
         packet.accept()
 
 nfqueue = NetfilterQueue()
