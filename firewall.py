@@ -1,6 +1,7 @@
 from netfilterqueue import NetfilterQueue
+from netfilterqueue import Packet
 
-def print_and_accept(pkt):
+def print_and_accept(pkt: Packet):
     print(pkt)
     pkt.accept()
 
