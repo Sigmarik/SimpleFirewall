@@ -120,12 +120,18 @@ class Ruleset:
             self.rules.append(firewall_rule)
     
     def match(self, dns_layer) -> bool:
+        rule_id = 0
+
         for rule in self.rules:
             match = rule.match(dns_layer)
             if match == "block":
+                print(f"Blocked by rule {rule_id}")
                 return False
             elif match == "allow":
+                print(f"Accepted by rule {rule_id}")
                 return True
+            rule_id += 1
+    
         return True
 
 if len(sys.argv) < 2:
@@ -153,10 +159,8 @@ def filter(packet):
         print(f"Additional Count: {dns_arcount}")
 
         if rules.match(dns_layer):
-            print("Blocked!")
             packet.drop()
         else:
-            print("Accepted!")
             packet.accept()
     else:
         packet.accept()
