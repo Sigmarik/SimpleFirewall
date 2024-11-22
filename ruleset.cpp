@@ -120,11 +120,11 @@ Rule::Action Rule::operator()(const void* package) const {
 
     const iphdr* ip = (const iphdr*)(pack + sizeof(*ether));
 
-    if (src_ip_ && ip->saddr != htonl(*src_ip_)) {
+    if (src_ip_ && ip->saddr != *src_ip_) {
         return Action::DONT_KNOW;
     }
 
-    if (dst_ip_ && ip->daddr != htonl(*dst_ip_)) {
+    if (dst_ip_ && ip->daddr != *dst_ip_) {
         return Action::DONT_KNOW;
     }
 
