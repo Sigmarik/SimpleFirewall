@@ -164,7 +164,7 @@ def filter(packet):
         if rules.match(dns_layer):
             packet.accept()
         else:
-            packet.block()
+            packet.drop()
     else:
         packet.accept()
 
