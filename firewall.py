@@ -62,9 +62,6 @@ class Rule:
 
 
     def match_response(self, dns_layer):
-        if "name" in self.params:
-            return None
-
         for answer in dns_layer.an:
             if "type" in self.params:
                 type_name = self.params["type"]
@@ -79,6 +76,8 @@ class Rule:
                 elif answer.rclass != NAME2CLASS[class_name]:
                     return None
             if "data" in self.params and self.params["data"] != answer.rdata:
+                return None
+            if "name" in self.params and self.params["name"] != answer.rrname:
                 return None
         return self.action
 
