@@ -70,13 +70,13 @@ class Rule:
                 type_name = self.params["type"]
                 if type_name not in NAME2TYPE:
                     print(f"Incorrect type name \"{type_name}\"");
-                else if answer.type != NAME2TYPE[type_name]:
+                elif answer.type != NAME2TYPE[type_name]:
                     return None
             if "class" in self.params:
                 class_name = self.params["class"]
                 if class_name not in NAME2CLASS:
                     print(f"Incorrect class name \"{class_name}\"");
-                else if answer.class != NAME2CLASS[class_name]:
+                elif answer.class != NAME2CLASS[class_name]:
                     return None
             if "data" in self.params and self.params["data"] != answer.rdata:
                 return None
@@ -95,13 +95,13 @@ class Rule:
                 type_name = self.params["type"]
                 if type_name not in NAME2TYPE:
                     print(f"Incorrect type name \"{type_name}\"");
-                else if question.qtype != NAME2TYPE[type_name]:
+                elif question.qtype != NAME2TYPE[type_name]:
                     return None
             if "class" in self.params:
                 class_name = self.params["class"]
                 if class_name not in NAME2CLASS:
                     print(f"Incorrect class name \"{class_name}\"");
-                else if question.qclass != NAME2CLASS[class_name]:
+                elif question.qclass != NAME2CLASS[class_name]:
                     return None
         return self.action
 
