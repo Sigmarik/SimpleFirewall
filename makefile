@@ -31,6 +31,7 @@ nfqueue:
 
 setup_tables:
 	iptables -t mangle -A FORWARD -j NFQUEUE --queue-num 5
+	iptables -L -v -n
 
 rm:
 	find . -name "*.o" -type f -not -path "./include/*" -delete
@@ -45,6 +46,7 @@ update:
 
 install_everything:
 	apk add python3-dev
+	apk add iptables
 	apk add linux-headers
 	apk add libnetfilter_queue-dev
 	python3 -m ensurepip
