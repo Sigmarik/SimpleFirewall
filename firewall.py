@@ -65,7 +65,7 @@ class Rule:
         if "name" in self.params:
             return None
 
-        for answer in dns_layer.anc:
+        for answer in dns_layer.an:
             if "type" in self.params:
                 type_name = self.params["type"]
                 if type_name not in NAME2TYPE:
