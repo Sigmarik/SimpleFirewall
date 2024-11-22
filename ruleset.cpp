@@ -191,6 +191,8 @@ Ruleset Ruleset::import(const char* path) {
 }
 
 bool Ruleset::allows(const void* package) const {
+    size_t rule_id = 0;
+
     for (const Rule& rule : rules_) {
         Rule::Action action = rule(package);
 
@@ -198,10 +200,13 @@ bool Ruleset::allows(const void* package) const {
             case Rule::Action::ALLOW:
                 return true;
             case Rule::Action::BLOCK:
+                std::cout << "Blocked by rule " << rule_id << std::endl;
                 return false;
             default:
                 break;
         }
+
+        ++rule_id;
     }
 
     return default_response_;
