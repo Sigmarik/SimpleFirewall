@@ -1,6 +1,139 @@
 from netfilterqueue import NetfilterQueue
 from netfilterqueue import Packet
 from scapy.all import IP, UDP, DNS
+import xml.etree.ElementTree as ET
+import sys
+
+NAME2TYPE = {
+    "A": 1,        # Address record (IPv4)
+    "NS": 2,       # Name server record
+    "MD": 3,       # Mail destination (obsolete)
+    "MF": 4,       # Mail forwarder (obsolete)
+    "CNAME": 5,    # Canonical name record
+    "SOA": 6,      # Start of authority record
+    "MB": 7,       # Mailbox domain name (experimental)
+    "MG": 8,       # Mail group member (experimental)
+    "MR": 9,       # Mail rename domain name (experimental)
+    "NULL": 10,    # Null record (experimental)
+    "WKS": 11,     # Well-known service record
+    "PTR": 12,     # Pointer record
+    "HINFO": 13,   # Host information record
+    "MINFO": 14,   # Mailbox or mail list information
+    "MX": 15,      # Mail exchange record
+    "TXT": 16,     # Text record
+    "AAAA": 28,    # Address record (IPv6)
+    "SRV": 33,     # Service locator
+    "NAPTR": 35,   # Naming Authority Pointer
+    "ANY": 255     # Any type of record
+}
+
+NAME2CLASS = {
+    "IN": 1,    # Internet
+    "CS": 2,    # CSNET
+    "CH": 3,    # CHAOS
+    "HS": 4,    # Hesiod
+    "ANY": 255   # Any
+}
+
+NAME2FLAG = {
+    "query": 0,      # Query
+    "response": 1    # Response
+}
+
+class Rule:
+    def __init__(self, action, **kwargs):
+        self.action = action
+        self.params = kwargs
+
+    def match(self, dns_layer):
+        flag = dns_layer.qr
+        
+        if "flag" in self.params:
+            flag_name = self.params["flag"]
+            if flag_name not in NAME2FLAG:
+                print(f"Incorrect flag name \"{flag_name}\"")
+            elif NAME2FLAG[flag_name] != flag:
+                return None
+            
+        if flag == 0:
+            return self.match_query(dns_layer)
+        else:
+            return self.match_response(dns_layer)
+
+
+    def match_response(self, dns_layer):
+        if "name" in self.params:
+            return None
+
+        for answer in dns_layer.anc:
+            if "type" in self.params:
+                type_name = self.params["type"]
+                if type_name not in NAME2TYPE:
+                    print(f"Incorrect type name \"{type_name}\"");
+                else if answer.type != NAME2TYPE[type_name]:
+                    return None
+            if "class" in self.params:
+                class_name = self.params["class"]
+                if class_name not in NAME2CLASS:
+                    print(f"Incorrect class name \"{class_name}\"");
+                else if answer.class != NAME2CLASS[class_name]:
+                    return None
+            if "data" in self.params and self.params["data"] != answer.rdata:
+                return None
+        return self.action
+
+
+    def match_query(self, dns_layer):
+        if "data" in self.params:
+            return None
+
+        for question in dns_layer.qd:
+            domain_name = question.qname.decode('utf-8')
+            if "name" in self.params and self.params["name"] != domain_name:
+                return None
+            if "type" in self.params:
+                type_name = self.params["type"]
+                if type_name not in NAME2TYPE:
+                    print(f"Incorrect type name \"{type_name}\"");
+                else if question.qtype != NAME2TYPE[type_name]:
+                    return None
+            if "class" in self.params:
+                class_name = self.params["class"]
+                if class_name not in NAME2CLASS:
+                    print(f"Incorrect class name \"{class_name}\"");
+                else if question.qclass != NAME2CLASS[class_name]:
+                    return None
+        return self.action
+
+
+class Ruleset:
+    def __init__(self, file_name):
+        tree = ET.parse(file_name)
+        root = tree.getroot()
+
+        self.rules = []
+
+        for rule in root:
+            action = rule.tag
+            attributes = rule.attrib
+
+            firewall_rule = Rule(action, **attributes)
+            self.rules.append(firewall_rule)
+    
+    def match(self, dns_layer) -> bool:
+        for rule in self.rules:
+            match = rule.match(dns_layer)
+            if match == "block":
+                return False
+            elif match == "allow":
+                return True
+        return True
+
+if len(sys.argv) < 2:
+    print(f"Usage:\n{sys.argv[0]} [path/to/the/ruleset.xml]")
+    exit(1)
+
+rules = Ruleset(sys.argv[1])
 
 def filter(packet):
     scapy_packet = IP(packet.get_payload())
@@ -20,12 +153,14 @@ def filter(packet):
         print(f"Authority Count: {dns_nscount}")
         print(f"Additional Count: {dns_arcount}")
 
-        if dns_layer.qr == 0:
-            for question in dns_layer.qd:
-                domain_name = question.qname.decode('utf-8')
-                print(f"Domain Name: {domain_name}")
-
-    packet.accept()
+        if rules.match(dns_layer):
+            print("Blocked!")
+            packet.drop()
+        else:
+            print("Accepted!")
+            packet.accept()
+    elif:
+        packet.accept()
 
 nfqueue = NetfilterQueue()
 nfqueue.bind(5, filter)

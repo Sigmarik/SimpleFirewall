@@ -1,0 +1,6 @@
+<rules>
+    <allow name="google.com"/>
+    <allow type="MX"/>
+    <block type="A" class="IN"/>
+    <allow/>
+</rules>
