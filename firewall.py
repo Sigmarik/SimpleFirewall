@@ -77,7 +77,9 @@ class Rule:
                     return None
             if "data" in self.params and self.params["data"] != answer.rdata:
                 return None
-            if "name" in self.params and self.params["name"] != answer.rrname:
+            domain_name = answer.rrname.decode('utf-8')
+            print(f"Name: {domain_name}")
+            if "name" in self.params and self.params["name"] != domain_name:
                 return None
         return self.action
 
@@ -88,6 +90,7 @@ class Rule:
 
         for question in dns_layer.qd:
             domain_name = question.qname.decode('utf-8')
+            print(f"Name: {domain_name}")
             if "name" in self.params and self.params["name"] != domain_name:
                 return None
             if "type" in self.params:
@@ -159,9 +162,9 @@ def filter(packet):
         print(f"Additional Count: {dns_arcount}")
 
         if rules.match(dns_layer):
-            packet.drop()
-        else:
             packet.accept()
+        else:
+            packet.block()
     else:
         packet.accept()
 
