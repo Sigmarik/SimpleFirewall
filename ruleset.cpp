@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include <iostream>
+#include <sstream>
 
 static std::optional<uint32_t> get_ip(const tinyxml2::XMLElement& element,
                                       const char* field) {
@@ -51,15 +52,31 @@ static std::optional<Rule::Protocol> get_protocol(const tinyxml2::
     return {};
 }
 
+static std::string ip_to_string(uint32_t ip_raw) {
+    std::stringstream stream;
+
+    uint32_t ip = ntohl(ip_raw);
+
+    uint32_t mask = UINT8_MAX;
+
+    stream << ((ip >> 24) & mask) << '.' << ((ip >> 16) & mask) << '.'
+           << ((ip >> 8) & mask) << '.' << (ip & mask);
+
+    return stream.str();
+}
+
 Rule::Rule(const tinyxml2::XMLElement& element) {
     if (strcmp("allow", element.Name()) == 0) {
         type_ = Type::ALLOW;
+        std::cout << "allow";
     } else if (strcmp("block", element.Name()) == 0) {
         type_ = Type::BLOCK;
+        std::cout << "block";
     } else {
         std::cerr << "Unknown rule \"" << element.Name()
                   << "\". Only \"allow\" or \"block\" are allowed."
                   << std::endl;
+        std::cout << "unknown";
     }
 
     src_ip_ = get_ip(element, "src_ip");
@@ -69,6 +86,18 @@ Rule::Rule(const tinyxml2::XMLElement& element) {
     dst_port_ = get_port(element, "dst_port");
 
     protocol_ = get_protocol(element, "protocol");
+
+    std::cout << ", src_ip: " << (src_ip_ ? ip_to_string(*src_ip_) : "*")
+              << ", dst_ip: " << (dst_ip_ ? ip_to_string(*dst_ip_) : "*")
+              << ", src_port: "
+              << (src_port_ ? std::to_string(*src_port_) : "*")
+              << ", dst_port: "
+              << (dst_port_ ? std::to_string(*dst_port_) : "*")
+              << ", protocol: "
+              << (protocol_
+                      ? (*protocol_ == Rule::Protocol::TCP ? "TCP" : "UDP")
+                      : "*")
+              << std::endl;
 }
 
 struct __attribute__((packed)) Package {

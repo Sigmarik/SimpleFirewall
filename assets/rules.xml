@@ -1,5 +1,6 @@
 <rules>
     <allow dst_port="8080" protocol="TCP"/>
+    <block dst_ip="40.114.177.156"/>
     <block dst_ip="8.8.8.8"/>
     <allow/>
 </rules>

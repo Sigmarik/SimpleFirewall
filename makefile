@@ -21,7 +21,7 @@ GREY 	= \\033[37m
 
 socks: $(SOCK_OBJECTS)
 	g++ $^ -o build/cpp_socks
-	cp -r assets build/assets
+	cp -r assets build
 
 run_socks: socks
 	cd build; ./cpp_socks $(ARGS)
