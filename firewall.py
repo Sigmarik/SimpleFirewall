@@ -76,7 +76,7 @@ class Rule:
                 class_name = self.params["class"]
                 if class_name not in NAME2CLASS:
                     print(f"Incorrect class name \"{class_name}\"");
-                elif answer.class != NAME2CLASS[class_name]:
+                elif answer.rclass != NAME2CLASS[class_name]:
                     return None
             if "data" in self.params and self.params["data"] != answer.rdata:
                 return None
