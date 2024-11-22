@@ -52,6 +52,7 @@ install_everything:
 	apk add python3-dev
 	apk add iptables
 	apk add linux-headers
+	apk add vim
 	apk add libnetfilter_queue-dev
 	python3 -m ensurepip
 	python3 -m pip install NetfilterQueue
